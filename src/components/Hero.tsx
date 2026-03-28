@@ -1,52 +1,68 @@
-import { ArrowRight, Info, CalendarCheck } from 'lucide-react';
+import { ArrowRight, Sparkles, MapPin } from 'lucide-react';
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden pt-16 pb-24 sm:pt-24 sm:pb-32">
-      {/* Background blobs for visual interest */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-full -z-10 blur-3xl opacity-20 pointer-events-none">
-        <div className="absolute top-10 left-10 w-72 h-72 bg-knu-green rounded-full"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-400 rounded-full"></div>
-      </div>
+    <section className="relative pt-32 pb-20 sm:pt-48 sm:pb-32 overflow-hidden">
+      {/* Decorative elements for festival vibe */}
+      <div className="absolute top-20 left-10 w-64 h-64 bg-emerald-400 rounded-full blur-[100px] opacity-20 animate-pulse"></div>
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-knu-green rounded-full blur-[120px] opacity-20 animate-pulse delay-700"></div>
+      
+      <div className="max-w-7xl mx-auto px-6 relative z-10 text-center sm:text-left grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 text-knu-green rounded-2xl mb-8 border border-emerald-100 animate-bounce shadow-sm">
+            <Sparkles size={16} className="fill-knu-green" />
+            <span className="text-sm font-black tracking-tight uppercase">2024 Campus Spring Festival</span>
+          </div>
+          
+          <h2 className="text-5xl sm:text-7xl font-[900] text-slate-900 leading-[1.1] tracking-tighter mb-8">
+            모두가 즐거운<br />
+            <span className="text-knu-green underline decoration-emerald-200 decoration-8 underline-offset-8">KNU 바베큐 파티</span>
+          </h2>
+          
+          <p className="text-lg sm:text-xl text-slate-600 font-medium leading-relaxed mb-12 max-w-xl">
+            춘천 캠퍼스의 산뜻한 바람과 함께 즐기는 최고의 식사 시간.<br className="hidden sm:block" />
+            동아리, 학과, 학생회 모임을 위한 실시간 예약 시스템을 지금 바로 이용해 보세요!
+          </p>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-knu-light text-knu-green text-xs font-bold mb-6 border border-emerald-100 uppercase tracking-wider animate-bounce">
-          <CalendarCheck size={14} />
-          오늘의 예약 가능 여부: 여유
-        </div>
-        
-        <h2 className="text-4xl sm:text-6xl font-extrabold text-slate-900 tracking-tight mb-6">
-          강원대학교 <br className="sm:hidden" />
-          <span className="text-knu-green">바베큐장 예약</span>
-        </h2>
-        
-        <p className="max-w-2xl mx-auto text-lg text-slate-600 mb-10 leading-relaxed">
-          학생, 동아리, 학과 모임을 위한 캠퍼스 안의 힐링 공간.<br className="hidden sm:block" />
-          한눈에 확인하고 손쉽게 예약하는 강원대학교 구성원 전용 바베큐 서비스입니다.
-        </p>
+          <div className="flex flex-col sm:flex-row gap-5">
+            <a href="#reserve" className="btn-primary py-5 px-10 text-lg group">
+              예약하러 가기
+              <ArrowRight size={22} className="group-hover:translate-x-1 transition-transform" />
+            </a>
+            <a href="#guide" className="btn-secondary py-5 px-10 text-lg">
+              이용안내 보기
+            </a>
+          </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="#reserve" className="btn-primary flex items-center gap-2 group">
-            예약하러 가기
-            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-          </a>
-          <a href="#guide" className="btn-secondary flex items-center gap-2">
-            이용안내 보기
-            <Info size={20} />
-          </a>
-        </div>
-
-        <div className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 text-left max-w-4xl mx-auto">
-          {[
-            { title: "편리한 예약", desc: "모바일과 PC 어디서나 실시간 예약 현황을 확인하세요." },
-            { title: "다양한 구역", desc: "소규모부터 대규모 단체까지 수용 가능한 3가지 구역 제공." },
-            { title: "캠퍼스 힐링", desc: "멀리 나가지 않아도 학교 안에서 즐기는 즐거운 식사 시간." },
-          ].map((item, i) => (
-            <div key={i} className="card border-0 bg-white/50 backdrop-blur-sm border-t-4 border-knu-green">
-              <h4 className="font-bold text-slate-900 mb-2">{item.title}</h4>
-              <p className="text-sm text-slate-600 leading-relaxed">{item.desc}</p>
+          <div className="mt-12 flex items-center gap-6 text-slate-400 font-bold text-sm uppercase tracking-widest">
+            <div className="flex items-center gap-2">
+              <MapPin size={18} className="text-knu-green" />
+              Chuncheon Campus
             </div>
-          ))}
+            <div className="w-1.5 h-1.5 rounded-full bg-slate-200"></div>
+            <div>Only for KNU Members</div>
+          </div>
+        </div>
+
+        <div className="hidden lg:block relative">
+          <div className="relative z-10 rounded-[3rem] overflow-hidden shadow-2xl shadow-emerald-900/20 border-8 border-white group">
+            <img 
+              src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+              alt="BBQ Party" 
+              className="w-full h-[500px] object-cover group-hover:scale-110 transition-transform duration-700" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-emerald-900/60 to-transparent"></div>
+            <div className="absolute bottom-8 left-8 right-8 text-white">
+              <div className="text-xs font-black uppercase tracking-widest mb-2 opacity-80">Photo by Campus Life</div>
+              <div className="text-2xl font-black">봄맞이 대축제 바베큐 현장</div>
+            </div>
+          </div>
+          {/* Floating badge */}
+          <div className="absolute -top-6 -right-6 w-32 h-32 bg-yellow-400 rounded-full flex flex-col items-center justify-center border-4 border-white shadow-xl rotate-12 animate-in zoom-in-50 duration-500">
+            <span className="text-[10px] font-black uppercase tracking-tighter text-yellow-900">Only Today</span>
+            <span className="text-3xl font-black text-yellow-900 leading-none">FREE</span>
+            <span className="text-[10px] font-black uppercase tracking-tighter text-yellow-900">Rental</span>
+          </div>
         </div>
       </div>
     </section>

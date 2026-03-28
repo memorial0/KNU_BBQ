@@ -7,20 +7,37 @@
 }
 
 body {
-  @apply bg-slate-50 text-slate-900;
+  @apply bg-[#f8fafc] text-slate-900;
 }
 
 @layer components {
+  .festival-gradient {
+    @apply bg-gradient-to-br from-knu-green to-emerald-500;
+  }
   .btn-primary {
-    @apply px-6 py-3 bg-knu-green text-white font-semibold rounded-xl hover:bg-knu-dark transition-all duration-200 shadow-md hover:shadow-lg active:scale-95;
+    @apply px-6 py-3 bg-knu-green text-white font-bold rounded-2xl hover:bg-knu-dark transition-all duration-300 shadow-lg shadow-emerald-900/20 active:scale-95 flex items-center justify-center gap-2;
   }
   .btn-secondary {
-    @apply px-6 py-3 bg-white text-knu-green border border-knu-green font-semibold rounded-xl hover:bg-knu-light transition-all duration-200 shadow-sm active:scale-95;
+    @apply px-6 py-3 bg-white text-knu-green border-2 border-knu-green font-bold rounded-2xl hover:bg-knu-light transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
   }
   .card {
-    @apply bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-300;
+    @apply bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 hover:shadow-2xl hover:shadow-emerald-900/5 transition-all duration-500;
   }
   .input-field {
-    @apply w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-knu-green/20 focus:border-knu-green transition-all;
+    @apply w-full px-5 py-4 rounded-2xl border-2 border-slate-100 bg-slate-50 focus:outline-none focus:ring-4 focus:ring-knu-green/10 focus:border-knu-green focus:bg-white transition-all text-slate-900 placeholder:text-slate-400 font-medium;
   }
+  .slot-btn {
+    @apply p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-1 font-bold text-sm;
+  }
+}
+
+/* Custom scrollbar for better UX */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-slate-100;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
 }
