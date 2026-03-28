@@ -1,10 +1,9 @@
 import Header from './components/Header';
 import Hero from './components/Hero';
-import AvailabilityStatus from './components/AvailabilityStatus';
-import ZoneInfo from './components/ZoneInfo';
 import ReservationForm from './components/ReservationForm';
 import UsageGuide from './components/UsageGuide';
 import ReservationLookup from './components/ReservationLookup';
+import ContactForm from './components/ContactForm';
 import Footer from './components/Footer';
 
 function App() {
@@ -14,10 +13,9 @@ function App() {
       
       <main className="flex-grow overflow-x-hidden">
         <Hero />
-        <AvailabilityStatus />
-        <ZoneInfo />
         <ReservationForm />
         <UsageGuide />
+        <ContactForm />
         <ReservationLookup />
       </main>
 

@@ -1,14 +1,20 @@
 import { useState, Fragment, ChangeEvent, FormEvent } from 'react';
-import { Calendar, Users, MapPin, CheckCircle2, Clock, School, ShieldAlert } from 'lucide-react';
+import { CheckCircle2, School, ShieldAlert, MapPin } from 'lucide-react';
+import CalendarBooking from './CalendarBooking';
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 // Types for reservation
 type Zone = 'A' | 'B' | 'C';
-type TimeSlot = 'lunch' | 'dinner';
 
 interface ReservationState {
   date: string;
   zone: Zone;
-  slot: TimeSlot;
+  slot: string;
   name: string;
   studentId: string;
   contact: string;
@@ -21,17 +27,17 @@ interface ReservationState {
 
 // Dummy data for already booked slots
 const bookedSlots = [
-  { date: '2024-03-28', zone: 'A', slot: 'lunch' },
-  { date: '2024-03-28', zone: 'B', slot: 'dinner' },
-  { date: '2024-03-29', zone: 'C', slot: 'lunch' },
+  { date: '2024-03-28', zone: 'A', slot: '10:00' },
+  { date: '2024-03-28', zone: 'B', slot: '10:00' },
+  { date: '2024-03-28', zone: 'C', slot: '10:00' },
 ];
 
 function ReservationForm() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<ReservationState>({
-    date: new Date().toISOString().split('T')[0],
+    date: '',
     zone: 'A',
-    slot: 'lunch',
+    slot: '',
     name: '',
     studentId: '',
     contact: '',
@@ -53,10 +59,6 @@ function ReservationForm() {
     }));
   };
 
-  const isSlotBooked = (date: string, zone: Zone, slot: TimeSlot) => {
-    return bookedSlots.some(b => b.date === date && b.zone === zone && b.slot === slot);
-  };
-
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -70,7 +72,7 @@ function ReservationForm() {
     return (
       <section id="reserve" className="py-24 bg-white scroll-mt-32">
         <div className="max-w-3xl mx-auto px-6">
-          <div className="card text-center py-20 px-10 border-4 border-emerald-100 bg-emerald-50/20">
+          <div className="card text-center py-20 px-10 border-4 border-emerald-100 bg-emerald-50/20 rounded-[2.5rem]">
             <div className="w-24 h-24 bg-knu-green text-white rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-xl shadow-emerald-900/20 animate-in zoom-in-50 duration-500">
               <CheckCircle2 size={48} />
             </div>
@@ -82,7 +84,7 @@ function ReservationForm() {
             <div className="p-6 bg-white rounded-[2rem] border-2 border-slate-100 mb-10 text-left space-y-3">
               <div className="flex justify-between font-bold"><span className="text-slate-400">날짜</span> {formData.date}</div>
               <div className="flex justify-between font-bold"><span className="text-slate-400">구역</span> {formData.zone}구역</div>
-              <div className="flex justify-between font-bold"><span className="text-slate-400">시간</span> {formData.slot === 'lunch' ? '12:00 ~ 16:00' : '17:00 ~ 21:00'}</div>
+              <div className="flex justify-between font-bold"><span className="text-slate-400">시간</span> {formData.slot}</div>
             </div>
             <button 
               onClick={() => { setIsSuccess(false); setStep(1); }}
@@ -125,126 +127,93 @@ function ReservationForm() {
           ))}
         </div>
 
-        <div className="card max-w-5xl mx-auto p-12">
+        <div className="max-w-5xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-12">
             {step === 1 && (
-              <div className="space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="space-y-4">
-                    <label className="text-lg font-black text-slate-900 flex items-center gap-2">
-                      <Calendar size={20} className="text-knu-green" />
-                      1. 날짜 선택
+              <div className="space-y-12 animate-in fade-in slide-in-from-right-8 duration-500">
+                <CalendarBooking 
+                  formData={formData} 
+                  setFormData={setFormData} 
+                />
+                
+                {formData.slot && (
+                  <div className="space-y-6 pt-8 border-t border-slate-100 animate-in slide-in-from-bottom-4 duration-500">
+                    <label className="text-xl font-black text-slate-900 flex items-center gap-2">
+                      <MapPin size={24} className="text-knu-green" />
+                      마지막 단계: 구역 선택
                     </label>
-                    <input 
-                      required
-                      type="date" 
-                      name="date"
-                      value={formData.date}
-                      onChange={handleChange}
-                      className="input-field" 
-                      min={new Date().toISOString().split('T')[0]}
-                    />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {(['A', 'B', 'C'] as const).map((zone) => {
+                        const isZoneBooked = bookedSlots.some(
+                          b => b.date === formData.date && b.slot === formData.slot && b.zone === zone
+                        );
+                        
+                        return (
+                          <button
+                            key={zone}
+                            type="button"
+                            disabled={isZoneBooked}
+                            onClick={() => setFormData({ ...formData, zone })}
+                            className={cn(
+                              "p-6 rounded-[2rem] border-2 font-bold transition-all flex flex-col items-center gap-2",
+                              isZoneBooked ? "bg-slate-50 text-slate-200 border-transparent cursor-not-allowed" :
+                              formData.zone === zone ? "bg-slate-900 text-white border-slate-900 shadow-xl scale-105" :
+                              "bg-white text-slate-600 border-slate-100 hover:border-knu-green hover:text-knu-green"
+                            )}
+                          >
+                            <span className="text-2xl font-black">{zone} 구역</span>
+                            <span className="text-xs uppercase tracking-widest opacity-60 font-black">
+                              {isZoneBooked ? 'Already Booked' : 'Selectable'}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="space-y-4">
-                    <label className="text-lg font-black text-slate-900 flex items-center gap-2">
-                      <Users size={20} className="text-knu-green" />
-                      2. 인원수 입력
-                    </label>
-                    <input 
-                      required
-                      type="number" 
-                      name="peopleCount"
-                      value={formData.peopleCount}
-                      onChange={handleChange}
-                      className="input-field"
-                      min={2}
-                      max={30}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  <label className="text-lg font-black text-slate-900 flex items-center gap-2">
-                    <MapPin size={20} className="text-knu-green" />
-                    3. 구역 및 시간 슬롯 선택
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    {(['A', 'B', 'C'] as Zone[]).map((zone) => (
-                      <div key={zone} className="space-y-4">
-                        <div className="text-sm font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2">{zone} 구역</div>
-                        <div className="flex flex-col gap-3">
-                          {(['lunch', 'dinner'] as TimeSlot[]).map((slot) => {
-                            const isBooked = isSlotBooked(formData.date, zone, slot);
-                            const isSelected = formData.zone === zone && formData.slot === slot;
-                            return (
-                              <button
-                                key={slot}
-                                type="button"
-                                disabled={isBooked}
-                                onClick={() => setFormData(prev => ({ ...prev, zone, slot }))}
-                                className={`slot-btn ${
-                                  isBooked ? 'bg-slate-50 border-slate-50 text-slate-300 cursor-not-allowed opacity-60' :
-                                  isSelected ? 'bg-knu-green border-knu-green text-white shadow-lg shadow-emerald-900/20' :
-                                  'bg-white border-slate-100 text-slate-600 hover:border-knu-green hover:text-knu-green'
-                                }`}
-                              >
-                                <span className="flex items-center gap-1">
-                                  <Clock size={14} />
-                                  {slot === 'lunch' ? '12:00 ~ 16:00' : '17:00 ~ 21:00'}
-                                </span>
-                                <span className="text-[10px] font-black tracking-widest uppercase">
-                                  {isBooked ? 'Full' : isSelected ? 'Selected' : 'Available'}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                )}
 
                 <div className="pt-8">
                   <button 
                     type="button"
+                    disabled={!formData.date || !formData.slot || !formData.zone}
                     onClick={() => setStep(2)}
-                    className="btn-primary w-full py-5 text-xl"
+                    className="btn-primary w-full py-6 text-xl disabled:opacity-50 shadow-2xl shadow-emerald-900/20"
                   >
-                    다음 단계로
+                    예약자 정보 입력하기
                   </button>
                 </div>
               </div>
             )}
 
             {step === 2 && (
-              <div className="space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
+              <div className="card p-12 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500 rounded-[2.5rem] bg-white shadow-xl">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-3">
-                    <label className="text-sm font-black text-slate-900 ml-1">이름</label>
+                    <label className="text-sm font-black text-slate-900 ml-1 uppercase tracking-widest">이름</label>
                     <input required name="name" value={formData.name} onChange={handleChange} placeholder="성함을 입력해주세요" className="input-field" />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-sm font-black text-slate-900 ml-1">학번</label>
+                    <label className="text-sm font-black text-slate-900 ml-1 uppercase tracking-widest">학번</label>
                     <input required name="studentId" value={formData.studentId} onChange={handleChange} placeholder="학번을 입력해주세요" className="input-field" />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-sm font-black text-slate-900 ml-1">연락처</label>
+                    <label className="text-sm font-black text-slate-900 ml-1 uppercase tracking-widest">연락처</label>
                     <input required name="contact" value={formData.contact} onChange={handleChange} placeholder="010-0000-0000" className="input-field" />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-sm font-black text-slate-900 ml-1">소속 단과대/학과</label>
+                    <label className="text-sm font-black text-slate-900 ml-1 uppercase tracking-widest">소속 단과대/학과</label>
                     <div className="relative">
                       <School className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
                       <input required name="college" value={formData.college} onChange={handleChange} placeholder="IT대학 컴퓨터공학과" className="input-field pl-14" />
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <label className="text-sm font-black text-slate-900 ml-1">동아리명 (선택)</label>
+                    <label className="text-sm font-black text-slate-900 ml-1 uppercase tracking-widest">동아리명 (선택)</label>
                     <input name="clubName" value={formData.clubName} onChange={handleChange} placeholder="소속 동아리가 있다면 적어주세요" className="input-field" />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-sm font-black text-slate-900 ml-1">사용 목적</label>
-                    <select name="purpose" value={formData.purpose} onChange={handleChange} className="input-field">
+                    <label className="text-sm font-black text-slate-900 ml-1 uppercase tracking-widest">사용 목적</label>
+                    <select name="purpose" value={formData.purpose} onChange={handleChange} className="input-field bg-slate-50">
                       <option>개인 모임</option>
                       <option>동아리 모임</option>
                       <option>학과 행사</option>
@@ -261,14 +230,14 @@ function ReservationForm() {
             )}
 
             {step === 3 && (
-              <div className="space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
+              <div className="card p-12 space-y-10 animate-in fade-in slide-in-from-right-8 duration-500 rounded-[2.5rem] bg-white shadow-xl">
                 <div className="bg-slate-50 rounded-[2rem] p-10 border-2 border-slate-100">
-                  <h4 className="text-2xl font-black text-slate-900 mb-8 border-b-2 border-slate-200 pb-4">예약 정보 최종 확인</h4>
+                  <h4 className="text-2xl font-black text-slate-900 mb-8 border-b-2 border-slate-200 pb-4 tracking-tighter">예약 정보 최종 확인</h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-12">
                     <div className="flex justify-between border-b border-slate-200 pb-2"><span className="font-bold text-slate-400">신청자</span> <span className="font-black">{formData.name} ({formData.studentId})</span></div>
                     <div className="flex justify-between border-b border-slate-200 pb-2"><span className="font-bold text-slate-400">연락처</span> <span className="font-black">{formData.contact}</span></div>
                     <div className="flex justify-between border-b border-slate-200 pb-2"><span className="font-bold text-slate-400">예약일자</span> <span className="font-black">{formData.date}</span></div>
-                    <div className="flex justify-between border-b border-slate-200 pb-2"><span className="font-bold text-slate-400">구역/시간</span> <span className="font-black">{formData.zone}구역 / {formData.slot === 'lunch' ? 'Lunch' : 'Dinner'}</span></div>
+                    <div className="flex justify-between border-b border-slate-200 pb-2"><span className="font-bold text-slate-400">구역/시간</span> <span className="font-black">{formData.zone}구역 / {formData.slot}</span></div>
                     <div className="flex justify-between border-b border-slate-200 pb-2"><span className="font-bold text-slate-400">소속</span> <span className="font-black">{formData.college}</span></div>
                     <div className="flex justify-between border-b border-slate-200 pb-2"><span className="font-bold text-slate-400">이용인원</span> <span className="font-black">{formData.peopleCount}명</span></div>
                   </div>
@@ -300,7 +269,7 @@ function ReservationForm() {
                   <button 
                     disabled={isSubmitting || !formData.agree}
                     type="submit"
-                    className="flex-[2] btn-primary py-5 text-xl disabled:opacity-50"
+                    className="flex-[2] btn-primary py-5 text-xl disabled:opacity-50 shadow-2xl shadow-emerald-900/20"
                   >
                     {isSubmitting ? '처리 중...' : '예약 최종 신청'}
                   </button>

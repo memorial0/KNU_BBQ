@@ -1,113 +1,178 @@
-import { useState, FormEvent } from 'react';
-import { Search, Calendar, MapPin, Clock } from 'lucide-react';
+import { useState } from 'react'
+import { Search, Calendar, MapPin, Clock, User, Phone } from 'lucide-react'
+import { supabase } from '../supabase'
 
-function ReservationLookup() {
-  const [name, setName] = useState('');
-  const [contact, setContact] = useState('');
-  const [showResult, setShowResult] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
+type ReservationRow = {
+  id: string
+  name: string
+  student_id: string
+  phone: string
+  purpose: string | null
+  reservation_date: string
+  reservation_time: string
+  zone: string
+  people_count: number
+  request_note: string | null
+  status: string
+  created_at: string
+}
 
-  const handleSearch = (e: FormEvent) => {
-    e.preventDefault();
-    setIsSearching(true);
-    setTimeout(() => {
-      setIsSearching(false);
-      setShowResult(true);
-    }, 1000);
-  };
+export default function ReservationLookup() {
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
+  const [results, setResults] = useState<ReservationRow[]>([])
+
+  const handleLookup = async () => {
+    setLoading(true)
+    setMessage('')
+    setResults([])
+
+    try {
+      const { data, error } = await supabase
+        .from('reservations')
+        .select('*')
+        .eq('name', name)
+        .eq('phone', phone)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        throw error
+      }
+
+      if (!data || data.length === 0) {
+        setMessage('조회된 예약 내역이 없습니다.')
+      } else {
+        setResults(data)
+      }
+    } catch (error: any) {
+      console.error(error)
+      setMessage('예약 조회 중 오류가 발생했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <section id="lookup" className="py-20 scroll-mt-20">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h3 className="text-3xl font-bold text-slate-900 mb-4">예약 내역 조회</h3>
-          <p className="text-slate-600">신청하신 예약 내역을 실시간으로 확인할 수 있습니다.</p>
+    <section id="lookup" className="py-24 bg-slate-50 scroll-mt-32">
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="text-center mb-14">
+          <h3 className="text-4xl sm:text-5xl font-black text-slate-900 mb-4 tracking-tighter">
+            예약 조회
+          </h3>
+          <p className="text-lg text-slate-500 font-medium">
+            이름과 연락처를 입력해 예약 내역을 확인하세요.
+          </p>
         </div>
 
-        <div className="card shadow-lg p-8 sm:p-10 mb-8 border-b-8 border-slate-900">
-          <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-end">
-            <div className="space-y-2 sm:col-span-1">
-              <label className="text-sm font-bold text-slate-700 ml-1">예약자 이름</label>
-              <input 
-                required
-                type="text" 
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="홍길동" 
-                className="input-field" 
-              />
+        <div className="card max-w-3xl mx-auto p-8 sm:p-10 space-y-6">
+          <div className="grid sm:grid-cols-2 gap-5">
+            <div className="space-y-3">
+              <label className="text-sm font-black text-slate-900 ml-1">예약자 이름</label>
+              <div className="relative">
+                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="홍길동"
+                  className="input-field pl-14"
+                />
+              </div>
             </div>
-            <div className="space-y-2 sm:col-span-1">
-              <label className="text-sm font-bold text-slate-700 ml-1">연락처</label>
-              <input 
-                required
-                type="tel" 
-                value={contact}
-                onChange={(e) => setContact(e.target.value)}
-                placeholder="010-1234-5678" 
-                className="input-field" 
-              />
+
+            <div className="space-y-3">
+              <label className="text-sm font-black text-slate-900 ml-1">연락처</label>
+              <div className="relative">
+                <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                <input
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="010-0000-0000"
+                  className="input-field pl-14"
+                />
+              </div>
             </div>
-            <button 
-              disabled={isSearching}
-              type="submit" 
-              className="w-full btn-primary h-[50px] flex items-center justify-center gap-2"
-            >
-              {isSearching ? (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <Search size={20} />
-              )}
-              조회하기
-            </button>
-          </form>
+          </div>
+
+          <button
+            onClick={handleLookup}
+            disabled={loading || !name || !phone}
+            className="btn-primary w-full py-5 text-lg disabled:opacity-50"
+          >
+            {loading ? '조회 중...' : '예약 조회하기'}
+          </button>
+
+          {message && (
+            <div className="rounded-2xl bg-slate-100 px-5 py-4 text-sm font-bold text-slate-600">
+              {message}
+            </div>
+          )}
         </div>
 
-        {showResult && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="p-4 bg-emerald-50 text-emerald-700 text-sm font-bold rounded-xl mb-4 border border-emerald-100 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              최근 1건의 예약 내역이 있습니다.
-            </div>
-            <div className="card border-l-4 border-knu-green p-6 relative overflow-hidden group">
-              <div className="absolute top-4 right-6 px-3 py-1 bg-amber-100 text-amber-700 text-xs font-black rounded-full uppercase tracking-widest">
-                승인 대기
+        {results.length > 0 && (
+          <div className="mt-10 grid gap-6 max-w-4xl mx-auto">
+            {results.map((item) => (
+              <div
+                key={item.id}
+                className="card p-8 border-2 border-slate-100 rounded-[2rem] bg-white"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                  <h4 className="text-2xl font-black text-slate-900">
+                    {item.name}님의 예약 내역
+                  </h4>
+                  <span className="inline-flex items-center rounded-full bg-emerald-100 px-4 py-2 text-sm font-black text-emerald-700">
+                    {item.status === 'confirmed' ? '예약 확정' : item.status}
+                  </span>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4 text-sm sm:text-base">
+                  <div className="flex items-center gap-3 rounded-2xl bg-slate-50 px-4 py-4">
+                    <Calendar size={18} className="text-knu-green" />
+                    <span className="font-bold text-slate-500">예약일</span>
+                    <span className="ml-auto font-black text-slate-900">{item.reservation_date}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3 rounded-2xl bg-slate-50 px-4 py-4">
+                    <Clock size={18} className="text-knu-green" />
+                    <span className="font-bold text-slate-500">예약시간</span>
+                    <span className="ml-auto font-black text-slate-900">{item.reservation_time}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3 rounded-2xl bg-slate-50 px-4 py-4">
+                    <MapPin size={18} className="text-knu-green" />
+                    <span className="font-bold text-slate-500">구역</span>
+                    <span className="ml-auto font-black text-slate-900">{item.zone}</span>
+                  </div>
+
+                  <div className="flex items-center gap-3 rounded-2xl bg-slate-50 px-4 py-4">
+                    <Search size={18} className="text-knu-green" />
+                    <span className="font-bold text-slate-500">인원</span>
+                    <span className="ml-auto font-black text-slate-900">{item.people_count}명</span>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid sm:grid-cols-2 gap-4 text-sm">
+                  <div className="rounded-2xl border border-slate-100 px-4 py-4">
+                    <span className="block text-slate-400 font-bold mb-1">학번</span>
+                    <span className="font-black text-slate-900">{item.student_id}</span>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-100 px-4 py-4">
+                    <span className="block text-slate-400 font-bold mb-1">이용 목적</span>
+                    <span className="font-black text-slate-900">{item.purpose || '-'}</span>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-100 px-4 py-4 sm:col-span-2">
+                    <span className="block text-slate-400 font-bold mb-1">요청사항</span>
+                    <span className="font-black text-slate-900">{item.request_note || '없음'}</span>
+                  </div>
+                </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] uppercase font-black text-slate-400">Reservation Date</span>
-                  <div className="flex items-center gap-2 text-slate-900 font-bold">
-                    <Calendar size={16} className="text-knu-green" />
-                    2024년 4월 15일
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] uppercase font-black text-slate-400">Time Slot</span>
-                  <div className="flex items-center gap-2 text-slate-900 font-bold">
-                    <Clock size={16} className="text-knu-green" />
-                    17:00 ~ 21:00
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] uppercase font-black text-slate-400">Reserved Zone</span>
-                  <div className="flex items-center gap-2 text-slate-900 font-bold">
-                    <MapPin size={16} className="text-knu-green" />
-                    B구역 (중앙)
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] uppercase font-black text-slate-400">Action</span>
-                  <button className="text-xs font-bold text-rose-500 hover:text-rose-700 underline text-left transition-colors">
-                    예약 취소 신청
-                  </button>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         )}
       </div>
     </section>
-  );
+  )
 }
-
-export default ReservationLookup;
