@@ -1,5 +1,5 @@
 import { useState, Fragment, ChangeEvent, FormEvent } from 'react';
-import { Calendar, Users, Info, MapPin, CheckCircle2, Clock, School, ShieldAlert } from 'lucide-react';
+import { Calendar, Users, MapPin, CheckCircle2, Clock, School, ShieldAlert } from 'lucide-react';
 
 // Types for reservation
 type Zone = 'A' | 'B' | 'C';
