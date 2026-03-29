@@ -20,9 +20,9 @@ function Header() {
           <div className="flex items-center gap-4 group cursor-pointer">
             <div className="bg-knu-green p-1.5 rounded-xl shadow-lg shadow-emerald-900/10 group-hover:rotate-6 transition-transform">
               <img 
-                src="https://www.kangwon.ac.kr/images/common/logo.png" 
-                alt="KNU Logo" 
-                className="h-8 brightness-0 invert" 
+                 src="/logo.png"
+                 alt="KNU BBQ Logo"
+                 className="h-12 w-auto object-contain"
               />
             </div>
             <div>
